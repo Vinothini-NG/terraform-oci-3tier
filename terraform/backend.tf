@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "AWS_SECRET_ACCESS_KEY"
+    bucket = "terraform-oci-state"
     key    = "oci-3tier/terraform.tfstate"
     region = "ap-sydney-1"
 
