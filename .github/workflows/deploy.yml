@@ -41,3 +41,6 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
+
+      - name: Show Terraform State
+        run: terraform state list
