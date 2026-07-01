@@ -30,7 +30,9 @@ resource "oci_objectstorage_object" "wallet_upload" {
   namespace      = data.oci_objectstorage_namespace.ns.namespace
   bucket         = oci_objectstorage_bucket.tf_bucket.name
   object         = "wallet.zip"
-  content_base64 = oci_database_autonomous_database_wallet.adb_wallet.content
+  content = base64decode(
+    oci_database_autonomous_database_wallet.adb_wallet.content
+  )
 }
 
 resource "oci_objectstorage_preauthrequest" "wallet_par" {
