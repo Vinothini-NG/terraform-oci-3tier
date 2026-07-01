@@ -14,11 +14,6 @@ resource "oci_database_autonomous_database_wallet" "adb_wallet" {
   base64_encode_content  = true
 }
 
-resource "local_file" "wallet_zip" {
-  filename       = "${path.module}/wallet.zip"
-  content_base64 = oci_database_autonomous_database_wallet.adb_wallet.content
-}
-
 data "oci_objectstorage_namespace" "ns" {
   compartment_id = var.compartment_ocid
 }
@@ -31,13 +26,24 @@ resource "oci_objectstorage_bucket" "tf_bucket" {
   storage_tier   = "Standard"
 }
 
-resource "oci_objectstorage_object" "wallet_upload" {
-  namespace = data.oci_objectstorage_namespace.ns.namespace
-  bucket    = oci_objectstorage_bucket.tf_bucket.name
-  object    = "wallet.zip"
-  source    = local_file.wallet_zip.filename
+resource "null_resource" "wallet_upload" {
+  depends_on = [oci_objectstorage_bucket.tf_bucket]
 
-  depends_on = [local_file.wallet_zip]
+  triggers = {
+    wallet_content_hash = md5(oci_database_autonomous_database_wallet.adb_wallet.content)
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      echo "${oci_database_autonomous_database_wallet.adb_wallet.content}" | base64 -d > /tmp/wallet.zip
+      oci os object put \
+        --namespace ${data.oci_objectstorage_namespace.ns.namespace} \
+        --bucket-name ${oci_objectstorage_bucket.tf_bucket.name} \
+        --name wallet.zip \
+        --file /tmp/wallet.zip \
+        --force
+    EOT
+  }
 }
 
 resource "oci_objectstorage_preauthrequest" "wallet_par" {
@@ -47,6 +53,7 @@ resource "oci_objectstorage_preauthrequest" "wallet_par" {
   access_type  = "ObjectRead"
   object_name  = "wallet.zip"
   time_expires = "2030-12-31T23:59:59Z"
+  depends_on = [null_resource.wallet_upload]
 }
 
 output "wallet_par_url" {
