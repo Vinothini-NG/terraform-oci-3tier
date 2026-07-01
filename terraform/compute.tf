@@ -81,3 +81,51 @@ resource "oci_core_image" "application_node1_custom_image" {
     create = "60m"
   }
 }
+
+#CREATING APPLICATION NODE2 TF
+resource "oci_core_instance" "application_node2" {
+
+  compartment_id = var.compartment_ocid
+  availability_domain = "eaWm:AP-SYDNEY-1-AD-1"
+  display_name = "application-node2-tf-github"
+  shape = "VM.Standard.E5.Flex"
+  shape_config {
+    ocpus         = 1
+    memory_in_gbs = 12
+  }
+
+  create_vnic_details {
+    subnet_id        = oci_core_subnet.private_subnet.id
+    assign_public_ip = false
+    display_name     = "app-node2-vnic"
+    hostname_label   = "appnode2"
+  }
+
+  source_details {
+    source_type = "image"
+
+    source_id = oci_core_image.application_node1_custom_image.id
+  }
+
+  metadata = {
+    ssh_authorized_keys = var.ssh_public_key
+    }
+
+  depends_on = [
+    oci_core_image.application_node1_custom_image
+  ]
+}
+
+# ADD APPLICATION NODE2 AS BACKEND
+resource "oci_load_balancer_backend" "lb_backend_node2" {
+  load_balancer_id = oci_load_balancer_load_balancer.load_balancer_tf.id
+  backendset_name  = oci_load_balancer_backend_set.lb_backend_set.name
+
+  ip_address = oci_core_instance.application_node2.private_ip
+  port       = 80
+
+  backup  = false
+  drain   = false
+  offline = false
+  weight  = 1
+}
