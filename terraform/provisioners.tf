@@ -1,7 +1,7 @@
 resource "null_resource" "bastion_to_private_test" {
 
   depends_on = [
-    oci_core_instance.bastion_host
+    oci_core_instance.bastion_host,
     oci_core_instance.application_node1
   ]
 
