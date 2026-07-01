@@ -24,6 +24,8 @@ jobs:
       TF_VAR_private_key: ${{ secrets.OCI_PRIVATE_KEY }}
       TF_VAR_ssh_public_key: ${{ secrets.OCI_SSH_PUBLIC_KEY }}
       TF_VAR_ssh_private_key: ${{ secrets.OCI_SSH_PRIVATE_KEY }}
+      TF_VAR_adb_admin_password: ${{ secrets.TF_VAR_adb_admin_password }}
+      TF_VAR_wallet_password: ${{ secrets.TF_VAR_wallet_password }}
 
     steps:
       - uses: actions/checkout@v4
