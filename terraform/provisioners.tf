@@ -1,5 +1,9 @@
 resource "null_resource" "bastion_to_private_test" {
 
+    triggers = {
+    always_run = timestamp()
+  }
+
   depends_on = [
     oci_core_instance.bastion_host,
     oci_core_instance.application_node1
