@@ -69,18 +69,15 @@ resource "oci_core_instance" "application_node1" {
     }
 }
 
-#STOP APPLICATION NODE1
-resource "null_resource" "stop_application_node1" {
-  depends_on = [oci_core_instance.application_node1]
+#CREATE CUSTOM IMAGE FOR APPLICATION NODE1
+resource "oci_core_image" "application_node1_custom_image" {
+  compartment_id = var.compartment_ocid
+  instance_id    = oci_core_instance.application_node1.id
+  display_name   = "application-node1-custom-image-tf-github"
 
-  provisioner "local-exec" {
-    command = "oci compute instance action --instance-id ${oci_core_instance.application_node1.id} --action STOP --wait-for-state STOPPED"
-    environment = {
-      OCI_CLI_TENANCY    = var.tenancy_ocid
-      OCI_CLI_USER       = var.user_ocid
-      OCI_CLI_FINGERPRINT = var.fingerprint
-      OCI_CLI_KEY_FILE   = var.private_key_path
-      OCI_CLI_REGION     = var.region
-    }
+  launch_mode = "NATIVE"
+
+  timeouts {
+    create = "60m"
   }
 }
