@@ -15,3 +15,11 @@ variable "ssh_private_key" {
   type        = string
   sensitive   = true
 }
+
+variable "adb_admin_password" {
+  sensitive = true
+}
+
+variable "wallet_password" {
+  sensitive = true
+}
