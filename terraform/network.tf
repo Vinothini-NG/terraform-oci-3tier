@@ -86,3 +86,10 @@ resource "oci_core_subnet" "public_subnet" {
 
   prohibit_public_ip_on_vnic = false
 }
+
+#CREATING NAT GATEWAY
+resource "oci_core_nat_gateway" "private_nat_gateway" {
+  compartment_id = var.compartment_ocid
+  vcn_id         = oci_core_vcn.main_vcn.id
+  display_name   = "private-nat-gateway-tf-github"
+}
