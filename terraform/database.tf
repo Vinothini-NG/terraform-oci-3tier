@@ -21,7 +21,7 @@ data "oci_objectstorage_namespace" "ns" {
 resource "oci_objectstorage_bucket" "tf_bucket" {
   compartment_id = var.compartment_ocid
   namespace      = data.oci_objectstorage_namespace.ns.namespace
-  name           = "terraform-bucket-tf-github"
+  name           = "terraform-wallet-bucket"
   access_type    = "NoPublicAccess"
   storage_tier   = "Standard"
 }
